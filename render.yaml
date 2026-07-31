@@ -1,0 +1,68 @@
+databases:
+  - name: guillermo-ecommerce-db
+    databaseName: ecommerce
+    plan: free
+
+services:
+  - type: web
+    name: guillermo-ecommerce-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install --upgrade pip uv && uv sync --frozen --no-dev
+    preDeployCommand: uv run alembic upgrade head
+    startCommand: uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PROJECT_NAME
+        value: Ecommerce API
+      - key: API_V1_STR
+        value: /api/v1
+      - key: ENVIRONMENT
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+      - key: BACKEND_CORS_ORIGINS
+        value: https://guillermo-ecommerce-frontend.onrender.com
+      - key: POSTGRES_SERVER
+        fromDatabase:
+          name: guillermo-ecommerce-db
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: guillermo-ecommerce-db
+          property: port
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: guillermo-ecommerce-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: guillermo-ecommerce-db
+          property: password
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: guillermo-ecommerce-db
+          property: database
+      - key: FIRST_SUPERUSER_EMAIL
+        sync: false
+      - key: FIRST_SUPERUSER_PASSWORD
+        sync: false
+
+  - type: web
+    name: guillermo-ecommerce-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://guillermo-ecommerce-backend.onrender.com/api/v1
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
