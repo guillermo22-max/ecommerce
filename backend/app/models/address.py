@@ -1,0 +1,26 @@
+from typing import TYPE_CHECKING
+
+from sqlalchemy import Boolean, ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.db.base_class import Base
+
+if TYPE_CHECKING:
+    from app.models.user import User
+
+
+class Address(Base):
+    __tablename__ = "addresses"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    full_name: Mapped[str] = mapped_column(String(255))
+    phone: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    line1: Mapped[str] = mapped_column(String(255))
+    line2: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    city: Mapped[str] = mapped_column(String(120))
+    state: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    postal_code: Mapped[str] = mapped_column(String(20))
+    country: Mapped[str] = mapped_column(String(2))
+    is_default: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    user: Mapped["User"] = relationship(back_populates="addresses")
