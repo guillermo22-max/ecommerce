@@ -5,7 +5,7 @@ databases:
 
 services:
   - type: web
-    name: guillermo-ecommerce-backend
+    name: ecommerce-backend
     runtime: python
     plan: free
     rootDir: backend
@@ -26,7 +26,7 @@ services:
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: "60"
       - key: BACKEND_CORS_ORIGINS
-        value: https://guillermo-ecommerce-frontend.onrender.com
+        value: https://ecommerce-frontend.onrender.com
       - key: POSTGRES_SERVER
         fromDatabase:
           name: guillermo-ecommerce-db
@@ -53,14 +53,14 @@ services:
         sync: false
 
   - type: web
-    name: guillermo-ecommerce-frontend
+    name: ecommerce-frontend
     runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
-        value: https://guillermo-ecommerce-backend.onrender.com/api/v1
+        value: https://ecommerce-backend.onrender.com/api/v1
     routes:
       - type: rewrite
         source: /*

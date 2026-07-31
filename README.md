@@ -61,8 +61,8 @@ Instrucciones detalladas, estructura interna y notas de diseño de cada parte en
 El archivo [`render.yaml`](render.yaml) es un **Blueprint** de Render que crea de un solo golpe:
 
 - Una base de datos PostgreSQL (`guillermo-ecommerce-db`)
-- El backend FastAPI (`guillermo-ecommerce-backend`) — corre `alembic upgrade head` cada vez que arranca (deploy o al despertar del modo dormido; `upgrade head` no hace nada si ya está al día, así que es seguro repetirlo)
-- El frontend (`guillermo-ecommerce-frontend`) como sitio estático, con la SPA configurada para React Router
+- El backend FastAPI (`ecommerce-backend`) — corre `alembic upgrade head` cada vez que arranca (deploy o al despertar del modo dormido; `upgrade head` no hace nada si ya está al día, así que es seguro repetirlo)
+- El frontend (`ecommerce-frontend`) como sitio estático, con la SPA configurada para React Router
 
 ### Pasos
 
@@ -78,7 +78,7 @@ El archivo [`render.yaml`](render.yaml) es un **Blueprint** de Render que crea d
 
 ### Verifica las URLs después del primer deploy
 
-Los nombres de servicio en Render son únicos globalmente; si `guillermo-ecommerce-backend`/`-frontend` ya estuvieran tomados, Render les asignará otra URL. Revisa las URLs reales asignadas y, si difieren, actualiza en el dashboard:
+Los nombres de servicio en Render son únicos globalmente; si `ecommerce-backend`/`-frontend` ya estuvieran tomados, Render les asignará otra URL. Revisa las URLs reales asignadas y, si difieren, actualiza en el dashboard:
 
 - `BACKEND_CORS_ORIGINS` (en el backend) → URL real del frontend
 - `VITE_API_URL` (en el frontend) → URL real del backend + `/api/v1`
