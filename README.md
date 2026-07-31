@@ -61,7 +61,7 @@ Instrucciones detalladas, estructura interna y notas de diseño de cada parte en
 El archivo [`render.yaml`](render.yaml) es un **Blueprint** de Render que crea de un solo golpe:
 
 - Una base de datos PostgreSQL (`guillermo-ecommerce-db`)
-- El backend FastAPI (`guillermo-ecommerce-backend`) — corre `alembic upgrade head` antes de cada deploy
+- El backend FastAPI (`guillermo-ecommerce-backend`) — corre `alembic upgrade head` cada vez que arranca (deploy o al despertar del modo dormido; `upgrade head` no hace nada si ya está al día, así que es seguro repetirlo)
 - El frontend (`guillermo-ecommerce-frontend`) como sitio estático, con la SPA configurada para React Router
 
 ### Pasos
