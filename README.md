@@ -58,19 +58,21 @@ Instrucciones detalladas, estructura interna y notas de diseño de cada parte en
 
 ## Desplegar en Render (gratis)
 
-El archivo [`render.yaml`](render.yaml) es un **Blueprint** de Render que crea de un solo golpe:
+El archivo [`render.yaml`](render.yaml) es un **Blueprint** de Render que crea:
 
-- Una base de datos PostgreSQL (`guillermo-ecommerce-db`)
 - El backend FastAPI (`ecommerce-backend`) — corre `alembic upgrade head` cada vez que arranca (deploy o al despertar del modo dormido; `upgrade head` no hace nada si ya está al día, así que es seguro repetirlo)
 - El frontend (`ecommerce-frontend`) como sitio estático, con la SPA configurada para React Router
 
+La base de datos **no** la crea Render (su plan gratis solo permite una Postgres gratuita por cuenta). En su lugar, usa un Postgres externo gratuito como [Neon](https://neon.tech) o [Supabase](https://supabase.com).
+
 ### Pasos
 
-1. Sube el repo a GitHub (ya está en `main`/`dev`).
-2. En [Render](https://dashboard.render.com/), **New → Blueprint** y selecciona este repositorio.
-3. Render detecta `render.yaml` y muestra los tres recursos a crear. Antes de aplicar, completa las variables marcadas como secretas: `FIRST_SUPERUSER_EMAIL` y `FIRST_SUPERUSER_PASSWORD` (para el backend).
-4. Aplica el Blueprint. `SECRET_KEY` se genera automáticamente y las credenciales de Postgres se inyectan solas desde la base de datos.
-5. Cuando el backend termine de desplegar, crea el superusuario ejecutando una vez, desde la pestaña **Shell** del servicio backend en Render:
+1. Crea un proyecto en Neon (o Supabase) y copia los datos de conexión: host, puerto, usuario, contraseña y nombre de la base de datos.
+2. Sube el repo a GitHub (ya está en `main`/`dev`).
+3. En [Render](https://dashboard.render.com/), **New → Blueprint** y selecciona este repositorio.
+4. Render detecta `render.yaml` y te pide llenar las variables marcadas como secretas antes de aplicar: `POSTGRES_SERVER`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` (con los datos de Neon/Supabase) y `FIRST_SUPERUSER_EMAIL` / `FIRST_SUPERUSER_PASSWORD`.
+5. Aplica el Blueprint. `SECRET_KEY` se genera automáticamente. `POSTGRES_SSLMODE=require` ya viene configurado (Neon y Supabase exigen TLS).
+6. Cuando el backend termine de desplegar, crea el superusuario ejecutando una vez, desde la pestaña **Shell** del servicio backend en Render:
 
    ```bash
    uv run python scripts/create_superuser.py
@@ -87,6 +89,7 @@ y vuelve a desplegar ambos servicios.
 
 ### Limitaciones del plan gratuito
 
-- La base de datos Postgres free de Render **expira a los 30 días** (hay que recrearla o pasar a un plan pago).
-- Los servicios web free se **duermen tras ~15 min sin tráfico** y tardan unos segundos en despertar en la siguiente petición.
+- Render solo permite **una base de datos Postgres gratuita por cuenta** — por eso este Blueprint usa un proveedor externo (Neon/Supabase) en vez de crear la suya propia.
+- El free tier de Neon/Supabase también tiene límites propios (la base se "suspende" tras un rato sin uso y tarda unos segundos en despertar en la siguiente consulta; hay topes de almacenamiento y cómputo). Revisa las condiciones vigentes en su documentación.
+- Los servicios web free de Render se **duermen tras ~15 min sin tráfico** y tardan unos segundos en despertar en la siguiente petición.
 - El plan free **no incluye disco persistente**: las imágenes subidas desde el panel admin (`backend/uploads/`) se pierden en cada redeploy o reinicio. Para persistirlas de verdad hace falta un disco pago en Render o mover el guardado a un storage externo (S3, Cloudflare R2, etc.).

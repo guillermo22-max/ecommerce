@@ -33,19 +33,23 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
+    # Hosted providers like Neon/Supabase require TLS (e.g. "require");
+    # left unset for local Postgres, which usually has no SSL configured.
+    POSTGRES_SSLMODE: str | None = None
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
-        return str(
-            PostgresDsn.build(
-                scheme="postgresql+psycopg",
-                username=self.POSTGRES_USER,
-                password=self.POSTGRES_PASSWORD,
-                host=self.POSTGRES_SERVER,
-                port=self.POSTGRES_PORT,
-                path=self.POSTGRES_DB,
-            )
+        uri = PostgresDsn.build(
+            scheme="postgresql+psycopg",
+            username=self.POSTGRES_USER,
+            password=self.POSTGRES_PASSWORD,
+            host=self.POSTGRES_SERVER,
+            port=self.POSTGRES_PORT,
+            path=self.POSTGRES_DB,
         )
+        if self.POSTGRES_SSLMODE:
+            return f"{uri}?sslmode={self.POSTGRES_SSLMODE}"
+        return str(uri)
 
     FIRST_SUPERUSER_EMAIL: str = "admin@example.com"
     FIRST_SUPERUSER_PASSWORD: str = "change-me"
